@@ -73,5 +73,15 @@
                 "--agent=AlphaBetaAgent", "--depth=1", "--random_seed=1", "--initial_board=test_layout.txt"
             ]
         },
+        {
+            "name": "2048 Question 5",
+            "type": "python",
+            "request": "launch",
+            "program": "2048.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--agent=AlphaBetaAgent", "--depth=2", "--evaluation_function=better", "--num_of_games=5"
+            ]
+        },
     ]
 }

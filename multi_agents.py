@@ -53,22 +53,7 @@ class ReflexAgent(Agent):
         board = successor_game_state.board
         max_tile = successor_game_state.max_tile
         score = successor_game_state.score
-        a = ReflexAgent.consistent_board_rows_and_cols_num(board) + ReflexAgent.number_of_empty_tiles(board)
-        return a
-
-    @staticmethod
-    def consistent_board_rows_and_cols_num(board):
-        return ReflexAgent.number_of_monotonic_rows(board) + ReflexAgent.number_of_monotonic_rows(board.T)
-
-    @staticmethod
-    def number_of_monotonic_rows(board):
-        left_mon = np.count_nonzero(np.all(board[:, 1:] >= board[:, :-1], axis=1))  # [<,<,<,<]
-        right_mon = np.count_nonzero(np.all(board[:, 1:] <= board[:, :-1], axis=1))  # [>,>,>,>]
-        return max(left_mon, right_mon)
-
-    @staticmethod
-    def number_of_empty_tiles(board):
-        return np.count_nonzero(board == 0)
+        return consistent_board_rows_and_cols_num(current_game_state) + number_of_empty_tiles(current_game_state)
 
 
 def score_evaluation_function(current_game_state):
@@ -192,18 +177,47 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    a = 1/current_game_state.max_tile
+    b = 2
+    c = 1
+    return -a*smoothness(current_game_state) + b*consistent_board_rows_and_cols_num(current_game_state) + c*number_of_empty_tiles(current_game_state)
+
+def smoothness(current_game_state):
     state_score = 0
-    for row, col in product(current_game_state.board.size[0], current_game_state.board.size[1]):
-        if row + 1 < current_game_state.board.size[0]:
-            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row + 1, col])
-        if col + 1 < current_game_state.board.size[1]:
-            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col + 1])
-        if row - 1 < current_game_state.board.size[0]:
-            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row - 1, col])
-        if col - 1 < current_game_state.board.size[1]:
-            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col - 1])
+    for row, col in product(range(current_game_state.board.shape[0]), range(current_game_state.board.shape[1])):
+        if current_game_state.board[row,col] == 0:
+            continue
+
+        if row + 1 < current_game_state.board.shape[0]:
+            if current_game_state.board[row + 1, col] != 0:
+                state_score += abs(current_game_state.board[row, col] - current_game_state.board[row + 1, col])
+
+        if col + 1 < current_game_state.board.shape[1]:
+            if current_game_state.board[row, col + 1] != 0:
+                state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col + 1])
+
+        if row - 1 < current_game_state.board.shape[0]:
+            if current_game_state.board[row - 1, col] != 0:
+                state_score += abs(current_game_state.board[row, col] - current_game_state.board[row - 1, col])
+
+        if col - 1 < current_game_state.board.shape[1]:
+            if current_game_state.board[row, col - 1] != 0:
+                state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col - 1])
+
     return state_score
 
+def consistent_board_rows_and_cols_num(current_game_state):
+    board = current_game_state.board
+    return number_of_monotonic_rows(board) + number_of_monotonic_rows(board.T)
+
+def number_of_monotonic_rows(board):
+    left_mon = np.count_nonzero(np.all(board[:, 1:] >= board[:, :-1], axis=1))  # [<,<,<,<]
+    right_mon = np.count_nonzero(np.all(board[:, 1:] <= board[:, :-1], axis=1))  # [>,>,>,>]
+    return max(left_mon, right_mon)
+
+def number_of_empty_tiles(current_game_state):
+    board = current_game_state.board
+    return np.count_nonzero(board == 0)
 
 
 # Abbreviation
