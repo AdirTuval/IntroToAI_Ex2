@@ -1,5 +1,6 @@
 import numpy as np
 import abc
+from itertools import product
 import util
 from game import Agent, Action
 
@@ -127,9 +128,9 @@ class MinmaxAgent(MultiAgentSearchAgent):
         return max(game_state.get_legal_actions(0), key=minimax_eval)
 
     def minimax_core(self, state, depth, agent_index):
-        if depth == 0:
-            return self.evaluation_function(state)
         actions = state.get_opponent_legal_actions() if agent_index else state.get_agent_legal_actions()
+        if depth == 0 or not actions:
+            return self.evaluation_function(state)
         f, new_depth = (min, depth - 1) if agent_index else (max, depth)
         return f(
             [self.minimax_core(state.generate_successor(agent_index, action), new_depth, 1 - agent_index) for action in
@@ -142,7 +143,30 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     def get_action(self, game_state):
-        pass
+        alphabeta_eval = lambda action : self.alpha_beta_core(game_state.generate_successor(0, action), self.depth,float('-inf'), float('inf'), 1)
+        return max(game_state.get_legal_actions(0), key=alphabeta_eval)
+
+    def alpha_beta_core(self, state, depth, a, b, agent_index):
+        if depth == 0:
+            return self.evaluation_function(state)
+        actions = state.get_opponent_legal_actions() if agent_index else state.get_agent_legal_actions()
+        if agent_index == 0:
+            v = float('-inf')
+            for action in actions:
+                v = max(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth, a, b, 1 - agent_index))
+                if v >= b:
+                    break
+                a = max(a, v)
+            return v
+        else:
+            v = float('inf')
+            for action in actions:
+                v = min(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth - 1, a, b, 1 - agent_index))
+                if v <= a:
+                    break
+                b = min(b, v)
+            return v
+
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -169,7 +193,7 @@ def better_evaluation_function(current_game_state):
     """
     "*** YOUR CODE HERE ***"
     state_score = 0
-    for row, col in zip(current_game_state.board.size[0], current_game_state.board.size[1]):
+    for row, col in product(current_game_state.board.size[0], current_game_state.board.size[1]):
         if row + 1 < current_game_state.board.size[0]:
             state_score += abs(current_game_state.board[row, col] - current_game_state.board[row + 1, col])
         if col + 1 < current_game_state.board.size[1]:
