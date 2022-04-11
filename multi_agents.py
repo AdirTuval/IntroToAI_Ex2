@@ -127,9 +127,9 @@ class MinmaxAgent(MultiAgentSearchAgent):
         return max(game_state.get_legal_actions(0), key=minimax_eval)
 
     def minimax_core(self, state, depth, agent_index):
-        if depth == 0:
-            return self.evaluation_function(state)
         actions = state.get_opponent_legal_actions() if agent_index else state.get_agent_legal_actions()
+        if depth == 0 or not actions:
+            return self.evaluation_function(state)
         f, new_depth = (min, depth - 1) if agent_index else (max, depth)
         return f([self.minimax_core(state.generate_successor(agent_index, action),new_depth, 1-agent_index) for action in actions])
 
@@ -140,7 +140,29 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     def get_action(self, game_state):
-        pass
+        alphabeta_eval = lambda action : self.alpha_beta_core(game_state.generate_successor(0, action), self.depth,float('-inf'), float('inf'), 1)
+        return max(game_state.get_legal_actions(0), key=alphabeta_eval)
+
+    def alpha_beta_core(self, state, depth, a, b, agent_index):
+        if depth == 0:
+            return self.evaluation_function(state)
+        actions = state.get_opponent_legal_actions() if agent_index else state.get_agent_legal_actions()
+        if agent_index == 0:
+            v = float('-inf')
+            for action in actions:
+                v = max(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth, a, b, 1 - agent_index))
+                if v >= b:
+                    break
+                a = max(a, v)
+            return v
+        else:
+            v = float('inf')
+            for action in actions:
+                v = min(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth - 1, a, b, 1 - agent_index))
+                if v <= a:
+                    break
+                b = min(b, v)
+            return v
 
 
 

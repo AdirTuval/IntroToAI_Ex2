@@ -32,6 +32,46 @@
                 "--num_of_games=10",
                  "--display=SummaryDisplay"
             ]
-        }
+        },
+        {
+            "name": "2048 Question 2 test_layout",
+            "type": "python",
+            "request": "launch",
+            "program": "2048.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--agent=MinmaxAgent", "--depth=1", "--random_seed=1", "--initial_board=test_layout.txt"
+            ]
+        },
+        {
+            "name": "2048 Question 2 depth = 2",
+            "type": "python",
+            "request": "launch",
+            "program": "2048.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--agent=MinmaxAgent", "--depth=2",
+            ]
+        },
+        {
+            "name": "2048 Question 3 AlphaBeta depth = 2",
+            "type": "python",
+            "request": "launch",
+            "program": "2048.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--agent=AlphaBetaAgent", "--depth=2",
+            ]
+        },
+        {
+            "name": "2048 Question 3 test_layout",
+            "type": "python",
+            "request": "launch",
+            "program": "2048.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--agent=AlphaBetaAgent", "--depth=1", "--random_seed=1", "--initial_board=test_layout.txt"
+            ]
+        },
     ]
 }
