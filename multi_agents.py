@@ -128,7 +128,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     def get_action(self, game_state):
-        alphabeta_eval = lambda action : self.alpha_beta_core(game_state.generate_successor(0, action), self.depth,float('-inf'), float('inf'), 1)
+        alphabeta_eval = lambda action: self.alpha_beta_core(game_state.generate_successor(0, action), self.depth,
+                                                             float('-inf'), float('inf'), 1)
         return max(game_state.get_legal_actions(0), key=alphabeta_eval)
 
     def alpha_beta_core(self, state, depth, a, b, agent_index):
@@ -138,7 +139,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if agent_index == 0:
             v = float('-inf')
             for action in actions:
-                v = max(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth, a, b, 1 - agent_index))
+                v = max(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth, a, b,
+                                                1 - agent_index))
                 if v >= b:
                     break
                 a = max(a, v)
@@ -146,12 +148,12 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         else:
             v = float('inf')
             for action in actions:
-                v = min(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth - 1, a, b, 1 - agent_index))
+                v = min(v, self.alpha_beta_core(state.generate_successor(agent_index, action), depth - 1, a, b,
+                                                1 - agent_index))
                 if v <= a:
                     break
                 b = min(b, v)
             return v
-
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -169,6 +171,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
 
+    def expectimax_core(self, state, depth, agent_index):
+        actions = state.get_opponent_legal_actions() if agent_index else state.get_agent_legal_actions()
+        if depth == 0 or not actions:
+            return self.evaluation_function(state)
+
+
+
 
 def better_evaluation_function(current_game_state):
     """
@@ -177,15 +186,17 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    a = 1/current_game_state.max_tile
+    a = 1 / current_game_state.max_tile
     b = 2
     c = 1
-    return -a*smoothness(current_game_state) + b*consistent_board_rows_and_cols_num(current_game_state) + c*number_of_empty_tiles(current_game_state)
+    return -a * smoothness(current_game_state) + b * consistent_board_rows_and_cols_num(
+        current_game_state) + c * number_of_empty_tiles(current_game_state)
+
 
 def smoothness(current_game_state):
     state_score = 0
     for row, col in product(range(current_game_state.board.shape[0]), range(current_game_state.board.shape[1])):
-        if current_game_state.board[row,col] == 0:
+        if current_game_state.board[row, col] == 0:
             continue
 
         if row + 1 < current_game_state.board.shape[0]:
@@ -196,24 +207,19 @@ def smoothness(current_game_state):
             if current_game_state.board[row, col + 1] != 0:
                 state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col + 1])
 
-        if row - 1 < current_game_state.board.shape[0]:
-            if current_game_state.board[row - 1, col] != 0:
-                state_score += abs(current_game_state.board[row, col] - current_game_state.board[row - 1, col])
-
-        if col - 1 < current_game_state.board.shape[1]:
-            if current_game_state.board[row, col - 1] != 0:
-                state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col - 1])
-
     return state_score
+
 
 def consistent_board_rows_and_cols_num(current_game_state):
     board = current_game_state.board
     return number_of_monotonic_rows(board) + number_of_monotonic_rows(board.T)
 
+
 def number_of_monotonic_rows(board):
     left_mon = np.count_nonzero(np.all(board[:, 1:] >= board[:, :-1], axis=1))  # [<,<,<,<]
     right_mon = np.count_nonzero(np.all(board[:, 1:] <= board[:, :-1], axis=1))  # [>,>,>,>]
     return max(left_mon, right_mon)
+
 
 def number_of_empty_tiles(current_game_state):
     board = current_game_state.board
