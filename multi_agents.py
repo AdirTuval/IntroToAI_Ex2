@@ -134,16 +134,13 @@ class MinmaxAgent(MultiAgentSearchAgent):
         return f([self.minimax_core(state.generate_successor(agent_index, action),new_depth, 1-agent_index) for action in actions])
 
 
-
-
-
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
     def get_action(self, game_state):
-        
+        pass
 
 
 
