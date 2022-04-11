@@ -169,14 +169,18 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        expectimax_eval = lambda action: self.expectimax_core(game_state.generate_successor(0, action), self.depth, 1)
+        return max(game_state.get_legal_actions(0), key=expectimax_eval)
 
     def expectimax_core(self, state, depth, agent_index):
         actions = state.get_opponent_legal_actions() if agent_index else state.get_agent_legal_actions()
         if depth == 0 or not actions:
             return self.evaluation_function(state)
-
-
+        expected_val = lambda values: sum(values) / len(actions)
+        f, new_depth = (expected_val, depth - 1) if agent_index else (max, depth)
+        return f(
+            [self.expectimax_core(state.generate_successor(agent_index, action), new_depth, 1 - agent_index)
+             for action in actions])
 
 
 def better_evaluation_function(current_game_state):
@@ -186,9 +190,9 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    a = 1 / current_game_state.max_tile
+    a = 2
     b = 2
-    c = 1
+    c = 50
     return -a * smoothness(current_game_state) + b * consistent_board_rows_and_cols_num(
         current_game_state) + c * number_of_empty_tiles(current_game_state)
 
