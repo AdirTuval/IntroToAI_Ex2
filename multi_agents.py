@@ -3,6 +3,7 @@ import abc
 import util
 from game import Agent, Action
 
+
 class ReflexAgent(Agent):
     """
     A reflex agent chooses an action at each choice point by examining
@@ -60,14 +61,13 @@ class ReflexAgent(Agent):
 
     @staticmethod
     def number_of_monotonic_rows(board):
-        left_mon = np.count_nonzero(np.all(board[:,1:] >= board[:,:-1],axis=1)) # [<,<,<,<]
-        right_mon = np.count_nonzero(np.all(board[:,1:] <= board[:,:-1],axis=1)) # [>,>,>,>]
+        left_mon = np.count_nonzero(np.all(board[:, 1:] >= board[:, :-1], axis=1))  # [<,<,<,<]
+        right_mon = np.count_nonzero(np.all(board[:, 1:] <= board[:, :-1], axis=1))  # [>,>,>,>]
         return max(left_mon, right_mon)
 
-    @staticmethod 
+    @staticmethod
     def number_of_empty_tiles(board):
         return np.count_nonzero(board == 0)
-        
 
 
 def score_evaluation_function(current_game_state):
@@ -123,7 +123,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
         game_state.generate_successor(agent_index, action):
             Returns the successor game state after an agent takes an action
         """
-        minimax_eval = lambda action : self.minimax_core(game_state.generate_successor(0, action), self.depth, 1)
+        minimax_eval = lambda action: self.minimax_core(game_state.generate_successor(0, action), self.depth, 1)
         return max(game_state.get_legal_actions(0), key=minimax_eval)
 
     def minimax_core(self, state, depth, agent_index):
@@ -131,10 +131,9 @@ class MinmaxAgent(MultiAgentSearchAgent):
             return self.evaluation_function(state)
         actions = state.get_opponent_legal_actions() if agent_index else state.get_agent_legal_actions()
         f, new_depth = (min, depth - 1) if agent_index else (max, depth)
-        return f([self.minimax_core(state.generate_successor(agent_index, action),new_depth, 1-agent_index) for action in actions])
-
-
-
+        return f(
+            [self.minimax_core(state.generate_successor(agent_index, action), new_depth, 1 - agent_index) for action in
+             actions])
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -143,8 +142,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     def get_action(self, game_state):
-        
-
+        pass
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -163,9 +161,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         util.raiseNotDefined()
 
 
-
-
-
 def better_evaluation_function(current_game_state):
     """
     Your extreme 2048 evaluation function (question 5).
@@ -173,7 +168,18 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    state_score = 0
+    for row, col in zip(current_game_state.board.size[0], current_game_state.board.size[1]):
+        if row + 1 < current_game_state.board.size[0]:
+            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row + 1, col])
+        if col + 1 < current_game_state.board.size[1]:
+            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col + 1])
+        if row - 1 < current_game_state.board.size[0]:
+            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row - 1, col])
+        if col - 1 < current_game_state.board.size[1]:
+            state_score += abs(current_game_state.board[row, col] - current_game_state.board[row, col - 1])
+    return state_score
+
 
 
 # Abbreviation
